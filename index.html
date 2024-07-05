@@ -1,1 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cashly Calculators</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        .content {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .title {
+            font-size: 35px;
+            font-weight: bold;
+            color: rgb(3, 3, 68);
+            margin-bottom: 10px;
+            padding-bottom: 25px;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        .button-container {
+            display: flex;
+            align-items: center;
+        }
+        .button {
+            width: 300px;
+            height: 200px;
+            background-color: #003ab3;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 40px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 20px;
+            
+        }
+        .button:hover {
+            background-color: rgb(4, 4, 70);
+        }
+        .description {
+            font-size: 16px;
+            color: #98A2B3;
+            max-width: 400px;
+            word-wrap: break-word;
+        }
+        .form-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .form-container label {
+            margin-bottom: 5px;
+            font-size: 18px;
+            color: #98A2B3;
+        }
+        .form-container input, .form-container select {
+            margin-bottom: 10px;
+            padding: 5px;
+            font-size: 16px;
+            width: 200px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+        .form-container button {
+            margin-right: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .calculate-button {
+            background-color: #003ab3;
+            color: white;
+        }
+
+        .calculate-button:hover {
+            background-color: rgb(3, 3, 68);
+        }
+        .back-button {
+            background-color: #cccccc;
+        }
+
+        .back-button:hover {
+            background-color: #757474;
+        }
+        .result {
+            margin-top: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+    <script>
+        function LTV() {
+            document.body.innerHTML = `
+                <div class="content">
+                    <div class="title">LTV Calculator</div>
+                    <div class="form-container">
+                        <label for="mortgage-type">Select Mortgage Type:</label>
+                        <select id="mortgage-type" onchange="updateForm()">
+                            <option value="first-mortgage">First Mortgage</option>
+                            <option value="heloc-second-mortgage">HELOC/2nd Mortgage</option>
+                        </select>
+                        <div id="form-fields">
+                            <!-- Form fields will be dynamically inserted here -->
+                        </div>
+                        <div>
+                            <button class="calculate-button" onclick="calculateLTV()">Calculate</button>
+                            <button class="back-button" onclick="goBack()">Back</button>
+                        </div>
+                        <div class="result" id="ltv-result"></div>
+                    </div>
+                </div>
+            `;
+            updateForm();
+        }
+
+        function updateForm() {
+            const mortgageType = document.getElementById('mortgage-type').value;
+            const formFields = document.getElementById('form-fields');
+            formFields.innerHTML = '';
+
+            if (mortgageType === 'heloc-second-mortgage') {
+                formFields.innerHTML = `
+                    <label for="loan-amount">Loan Amount:</label>
+                    <input type="number" id="loan-amount" placeholder="Enter loan amount" required>
+                    <label for="current-mortgage">Current Mortgage Balance:</label>
+                    <input type="number" id="current-mortgage" placeholder="Enter current mortgage" required>
+                    <label for="appraisal-value">Appraisal Value:</label>
+                    <input type="number" id="appraisal-value" placeholder="Enter appraisal value" required>
+                `;
+            } else if (mortgageType === 'first-mortgage') {
+                formFields.innerHTML = `
+                    <label for="loan-amount">Finance Amount:</label>
+                    <input type="number" id="loan-amount" placeholder="Enter loan amount" required>
+                    <label for="appraisal-value">Appraisal Value:</label>
+                    <input type="number" id="appraisal-value" placeholder="Enter appraisal value" required>
+                `;
+            }
+        }
+
+        function calculateLTV() {
+            const mortgageType = document.getElementById('mortgage-type').value;
+            let ltv = 0;
+
+            if (mortgageType === 'heloc-second-mortgage') {
+                const loanAmount = parseFloat(document.getElementById('loan-amount').value);
+                const currentMortgage = parseFloat(document.getElementById('current-mortgage').value);
+                const appraisalValue = parseFloat(document.getElementById('appraisal-value').value);
+
+                if (isNaN(loanAmount) || isNaN(currentMortgage) || isNaN(appraisalValue) || appraisalValue === 0) {
+                    alert('Please enter valid numbers for all fields.');
+                    return;
+                }
+
+                ltv = ((currentMortgage + loanAmount) / appraisalValue) * 100;
+            } else if (mortgageType === 'first-mortgage') {
+                const loanAmount = parseFloat(document.getElementById('loan-amount').value);
+                const appraisalValue = parseFloat(document.getElementById('appraisal-value').value);
+
+                if (isNaN(loanAmount) || isNaN(appraisalValue) || appraisalValue === 0) {
+                    alert('Please enter valid numbers for all fields.');
+                    return;
+                }
+
+                ltv = (loanAmount / appraisalValue) * 100;
+            }
+
+            document.getElementById('ltv-result').innerText = `LTV: ${ltv.toFixed(2)}%`;
+        }
+
+        function TDS() {
+            document.body.innerHTML = `
+                <div class="content">
+                    <div class="title">TDS Calculator</div>
+                    <div class="form-container">
+                        <label for="monthly-debt">Total Monthly Debt:</label>
+                        <input type="number" id="monthly-debt" placeholder="Enter total monthly debt" required>
+                        <label for="housing-costs">Monthly Housing Costs:</label>
+                        <input type="number" id="housing-costs" placeholder="Enter monthly housing costs" required>
+                        <label for="gross-income">Monthly Gross Income:</label>
+                        <input type="number" id="gross-income" placeholder="Enter monthly gross income" required>
+                        <div>
+                            <button class="calculate-button" onclick="calculateTDS()">Calculate</button>
+                            <button class="back-button" onclick="goBack()">Back</button>
+                        </div>
+                        <div class="result" id="tds-result"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function calculateTDS() {
+            const monthlyDebt = parseFloat(document.getElementById('monthly-debt').value);
+            const housingCosts = parseFloat(document.getElementById('housing-costs').value);
+            const grossIncome = parseFloat(document.getElementById('gross-income').value);
+
+            if (isNaN(monthlyDebt) || isNaN(housingCosts) || isNaN(grossIncome) || grossIncome === 0) {
+                alert('Please enter valid numbers for all fields.');
+                return;
+            }
+
+            const tds = ((monthlyDebt + housingCosts) / grossIncome) * 100;
+            document.getElementById('tds-result').innerText = `TDS: ${tds.toFixed(2)}%`;
+        }
+
+        function MonthlyPayments() {
+            document.body.innerHTML = `
+                <div class="content">
+                    <div class="title">Monthly Payments Calculator</div>
+                    <div class="form-container">
+                        <label for="ltv">LTV (as decimal):</label>
+                        <input type="number" id="ltv" placeholder="Enter LTV" required>
+                        <label for="appraisal">Appraisal Value:</label>
+                        <input type="number" id="appraisal" placeholder="Enter appraisal value" required>
+                        <label for="interest-rate">Interest Rate (as decimal):</label>
+                        <input type="number" id="interest-rate" placeholder="Enter interest rate" required>
+                        <label for="loan-term">Loan Term (in months):</label>
+                        <input type="number" id="loan-term" placeholder="Enter loan term" required>
+                        <div>
+                            <button class="calculate-button" onclick="calculateMonthlyPayments()">Calculate</button>
+                            <button class="back-button" onclick="goBack()">Back</button>
+                        </div>
+                        <div class="result" id="monthly-payments-result"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function calculateMonthlyPayments() {
+            const ltv = parseFloat(document.getElementById('ltv').value);
+            const appraisal = parseFloat(document.getElementById('appraisal').value);
+            const interestRate = parseFloat(document.getElementById('interest-rate').value);
+            const loanTerm = parseFloat(document.getElementById('loan-term').value);
+
+            if (isNaN(ltv) || isNaN(appraisal) || isNaN(interestRate) || isNaN(loanTerm) || loanTerm === 0) {
+                alert('Please enter valid numbers for all fields.');
+                return;
+            }
+
+            const monthlyPayment = ((appraisal * ltv) / loanTerm) * (1 + interestRate);
+            document.getElementById('monthly-payments-result').innerText = `Monthly Payment: ${monthlyPayment.toFixed(2)}`;
+        }
+
+        function GDS() {
+            document.body.innerHTML = `
+                <div class="content">
+                    <div class="title">GDS Calculator</div>
+                    <div class="form-container">
+                        <label for="housing-costs">Total Housing Costs:</label>
+                        <input type="number" id="housing-costs" placeholder="Enter total housing costs" required>
+                        <label for="gross-income">Monthly Gross Income:</label>
+                        <input type="number" id="gross-income" placeholder="Enter monthly gross income" required>
+                        <div>
+                            <button class="calculate-button" onclick="calculateGDS()">Calculate</button>
+                            <button class="back-button" onclick="goBack()">Back</button>
+                        </div>
+                        <div class="result" id="gds-result"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function calculateGDS() {
+            const housingCosts = parseFloat(document.getElementById('housing-costs').value);
+            const grossIncome = parseFloat(document.getElementById('gross-income').value);
+
+            if (isNaN(housingCosts) || isNaN(grossIncome) || grossIncome === 0) {
+                alert('Please enter valid numbers for all fields.');
+                return;
+            }
+
+            const gds = (housingCosts / grossIncome) * 100;
+            document.getElementById('gds-result').innerText = `GDS: ${gds.toFixed(2)}%`;
+        }
+
+        function goBack() {
+            location.reload(); // Reload the page to go back to the original content
+        }
+    </script>
+</head>
+<body>
+    <div class="content">
+        <div class="title">Financial Calculators</div>
+        <div class="container">
+            <div class="button-container">
+                <button class="button" onclick="LTV()">LTV</button>
+                <div class="description">Loan-to-Value (LTV) Calculator: Determine the ratio of a loan to the value of an asset, typically used to assess mortgage risk. Enter the loan amount and the appraised value to calculate your LTV percentage.</div>
+            </div>
+            <div class="button-container">
+                <button class="button" onclick="TDS()">TDS</button>
+                <div class="description">Total Debt Service (TDS) Calculator: Determine the percentage of your gross income required to cover all your debt obligations, including housing costs and other debt payments. Enter your income and total monthly debt payments to calculate your TDS ratio.</div>
+            </div>
+            <div class="button-container">
+                <button class="button" onclick="MonthlyPayments()">Monthly Payments</button>
+                <div class="description">Monthly Mortgage Payments Calculator: Calculate the approximate monthly payments for the mortgage amount you qualify for at the lender's specified interest rate. Enter the mortgage amount, interest rate, and loan term to estimate your monthly mortgage payments.</div>
+            </div>
+            <div class="button-container">
+                <button class="button" onclick="GDS()">GDS</button>
+                <div class="description">Gross Debt Service (GDS) Calculator: Calculate the percentage of your gross income needed to cover housing costs, including mortgage payments, property taxes, and heating. Enter your income and housing expenses to find out your GDS ratio.</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
 
