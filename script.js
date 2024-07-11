@@ -52,6 +52,8 @@ function updateForm() {
     }
 }
 
+updateForm();
+
 function calculateTDS() {
     const monthlyDebt = parseFloat(document.getElementById('monthly-debt').value);
     const housingCosts = parseFloat(document.getElementById('housing-costs').value);
